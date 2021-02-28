@@ -1,25 +1,29 @@
-import React, { useState, useEffect, useCallback } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  DialogActions,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
 } from "@material-ui/core";
-import { CrossnoteContainer } from "../containers/crossnote";
-import { Note } from "../lib/crossnote";
+import { TabNode } from "flexlayout-react";
+import Noty from "noty";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CrossnoteContainer } from "../containers/crossnote";
+import { Note } from "../lib/note";
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  tabNode: TabNode;
   note: Note;
 }
 
 export default function ChangeFilePathDialog(props: Props) {
   const crossnoteContainer = CrossnoteContainer.useContainer();
   const note = props.note;
+  const tabNode = props.tabNode;
   const [inputEl, setInputEl] = useState<HTMLInputElement>(null);
   const [newFilePath, setNewFilePath] = useState<string>(
     (note && note.filePath) || "",
@@ -35,12 +39,26 @@ export default function ChangeFilePathDialog(props: Props) {
           newFilePath = newFilePath + ".md";
         }
         if (note.filePath !== newFilePath) {
-          await crossnoteContainer.changeNoteFilePath(note, newFilePath);
+          try {
+            await crossnoteContainer.changeNoteFilePath(
+              tabNode,
+              note,
+              newFilePath,
+            );
+          } catch (error) {
+            new Noty({
+              type: "error",
+              text: t("error/failed-to-change-file-path"),
+              layout: "topRight",
+              theme: "relax",
+              timeout: 5000,
+            }).show();
+          }
         }
         props.onClose();
       })();
     },
-    [note, props.onClose, props],
+    [note, tabNode, props, t],
   );
 
   useEffect(() => {

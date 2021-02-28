@@ -1,27 +1,47 @@
-import React, { useState, useEffect, useCallback } from "react";
-import LazyLoad from "react-lazyload";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import clsx from "clsx";
-import { CrossnoteContainer } from "../containers/crossnote";
-import { Box, Typography, Button } from "@material-ui/core";
-import NoteCard from "./NoteCard";
-import { useTranslation } from "react-i18next";
-import { Note } from "../lib/crossnote";
-import useInterval from "@use-it/interval";
-import { CloudDownloadOutline } from "mdi-material-ui";
-import Noty from "noty";
+import { Box, Typography } from "@material-ui/core";
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  useTheme,
+} from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
+import clsx from "clsx";
+import { TabNode } from "flexlayout-react";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import LazyLoad from "react-lazyload";
+import { CrossnoteContainer } from "../containers/crossnote";
+import { Note } from "../lib/note";
+import NoteCard, { NoteCardMargin } from "./NoteCard";
+const is = require("is_js");
 
-const lazyLoadPlaceholderHeight = 92;
+const lazyLoadPlaceholderHeight = 92 + 2 * NoteCardMargin;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     notesList: {
-      position: "relative",
-      flex: "1",
-      overflowY: "auto",
-      paddingBottom: theme.spacing(12),
-      marginTop: theme.spacing(0.5),
+      "position": "relative",
+      // "flex": "1",
+      // "overflowY": "auto",
+      "paddingTop": theme.spacing(2),
+      "paddingLeft": theme.spacing(2),
+      "paddingRight": theme.spacing(2),
+      "paddingBottom": theme.spacing(12),
+      [theme.breakpoints.down("sm")]: {
+        paddingLeft: theme.spacing(0.5),
+        paddingRight: theme.spacing(0.5),
+      },
+
+      "& .note-card-sizer": {
+        // width: `${NoteCardWidth + 2 * NoteCardMargin}px`,
+        maxWidth: "100%",
+        /*
+        [theme.breakpoints.down("xs")]: {
+          width: "100%",
+        },
+        */
+      },
     },
     updatePanel: {
       padding: theme.spacing(2),
@@ -33,18 +53,23 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  tabNode: TabNode;
+  referredNote?: Note;
+  notes: Note[];
   searchValue: string;
+  scrollElement: HTMLElement;
 }
 
 export default function Notes(props: Props) {
   const classes = useStyles(props);
   const { t } = useTranslation();
+  const theme = useTheme();
   const crossnoteContainer = CrossnoteContainer.useContainer();
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [notesListElement, setNotesListElement] = useState<HTMLElement>(null);
   const [forceUpdate, setForceUpdate] = useState<number>(Date.now());
-  const searchValue = props.searchValue;
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [masonryInstance, setMasonryInstance] = useState<any>(null);
 
+  /*
   const pullNotebook = useCallback(() => {
     const notebook = crossnoteContainer.selectedNotebook;
     if (!notebook) {
@@ -83,11 +108,15 @@ export default function Notes(props: Props) {
         }).show();
       });
   }, [crossnoteContainer.selectedNotebook, t]);
+  */
 
   useEffect(() => {
+    const notes = props.notes;
+    const searchValue = props.searchValue;
     const pinned: Note[] = [];
     const unpinned: Note[] = [];
-    crossnoteContainer.notes.forEach((note) => {
+    notes.forEach((note) => {
+      // TODO: Convert to use MiniSearch for searching
       if (searchValue.trim().length) {
         const regexp = new RegExp(
           "(" +
@@ -117,8 +146,9 @@ export default function Notes(props: Props) {
     });
 
     setNotes([...pinned, ...unpinned]);
-  }, [crossnoteContainer.notes, searchValue]);
+  }, [props.notes, props.searchValue]);
 
+  /*
   useEffect(() => {
     if (notesListElement) {
       const keyDownHandler = (event: KeyboardEvent) => {
@@ -149,19 +179,21 @@ export default function Notes(props: Props) {
       };
     }
   }, [notesListElement, notes, crossnoteContainer.selectedNote]);
+  */
 
   useEffect(() => {
-    if (notesListElement) {
+    if (props.scrollElement) {
+      const scrollElement = props.scrollElement;
       // Hack: fix note cards not displaying bug when searchValue is not empty
       const hack = () => {
-        const initialHeight = notesListElement.style.height;
-        const initialFlex = notesListElement.style.flex;
-        notesListElement.style.flex = "initial";
-        notesListElement.style.height = "10px";
-        notesListElement.scrollTop += 1;
-        notesListElement.scrollTop -= 1;
-        notesListElement.style.height = initialHeight;
-        notesListElement.style.flex = initialFlex;
+        const initialHeight = scrollElement.style.height;
+        const initialFlex = scrollElement.style.flex;
+        scrollElement.style.flex = "initial";
+        scrollElement.style.height = "10px";
+        scrollElement.scrollTop += 1;
+        scrollElement.scrollTop -= 1;
+        scrollElement.style.height = initialHeight;
+        scrollElement.style.flex = initialFlex;
       };
       window.addEventListener("resize", hack);
       hack();
@@ -169,45 +201,10 @@ export default function Notes(props: Props) {
         window.removeEventListener("resize", hack);
       };
     }
-  }, [notes, notesListElement]);
-
-  useInterval(() => {
-    if (crossnoteContainer.needsToRefreshNotes) {
-      crossnoteContainer.setNeedsToRefreshNotes(false);
-      setForceUpdate(Date.now());
-    }
-  }, 15000);
+  }, [notes, props.scrollElement, masonryInstance]);
 
   return (
-    <div
-      className={clsx(classes.notesList)}
-      ref={(element: HTMLElement) => {
-        setNotesListElement(element);
-      }}
-    >
-      {crossnoteContainer.selectedNotebook &&
-        crossnoteContainer.selectedNotebook.localSha !==
-          crossnoteContainer.selectedNotebook.remoteSha && (
-          <Box className={clsx(classes.updatePanel)}>
-            <Typography style={{ marginBottom: "8px" }}>
-              {"🔔  " + t("general/notebook-updates-found")}
-            </Typography>
-            <Button
-              color={"primary"}
-              variant={"outlined"}
-              onClick={pullNotebook}
-              disabled={
-                crossnoteContainer.isPullingNotebook ||
-                crossnoteContainer.isPushingNotebook
-              }
-            >
-              <CloudDownloadOutline
-                style={{ marginRight: "8px" }}
-              ></CloudDownloadOutline>
-              {t("general/update-the-notebook")}
-            </Button>
-          </Box>
-        )}
+    <div className={clsx(classes.notesList)}>
       {(notes || []).map((note) => {
         return (
           <LazyLoad
@@ -215,12 +212,12 @@ export default function Notes(props: Props) {
             placeholder={
               <Box
                 style={{
-                  textAlign: "center",
+                  maxWidth: "100%",
+                  margin: `${NoteCardMargin}px auto`,
+                  padding: theme.spacing(2, 0.5, 0),
                   height: `${lazyLoadPlaceholderHeight}px`,
-                  paddingTop: "16px",
-                  paddingBottom: "16px",
-                  boxSizing: "border-box",
                 }}
+                className={"note-card lazyload-placeholder"}
               >
                 <Skeleton />
                 <Skeleton animation={false} />
@@ -230,11 +227,18 @@ export default function Notes(props: Props) {
             height={lazyLoadPlaceholderHeight}
             overflow={true}
             once={true}
-            scrollContainer={notesListElement}
+            scrollContainer={props.scrollElement}
             resize={true}
           >
-            <NoteCard key={"note-card-" + note.filePath} note={note}></NoteCard>
+            <NoteCard
+              key={"note-card-" + note.filePath}
+              tabNode={props.tabNode}
+              note={note}
+              referredNote={props.referredNote}
+            ></NoteCard>
           </LazyLoad>
+
+          //   <NoteCard key={"note-card-" + note.filePath} note={note}></NoteCard>
         );
       })}
       {crossnoteContainer.initialized &&
@@ -246,6 +250,7 @@ export default function Notes(props: Props) {
               marginTop: "32px",
             }}
             variant={"body2"}
+            color={"textPrimary"}
           >
             {"🧐 " + t("general/no-notes-found")}
           </Typography>

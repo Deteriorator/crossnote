@@ -1,28 +1,28 @@
-import { printPreview as VickyMDPrintPreview } from "vickymd/preview";
+import { printPreview as EchoMDPrintPreview } from "@0xgg/echomd/preview";
 import * as path from "path";
-import { Note } from "../lib/crossnote";
-import { resolveNoteImageSrc } from "./image";
-import { SelectedSection, SelectedSectionType } from "../containers/crossnote";
 import { globalContainers } from "../containers/global";
+import { Note } from "../lib/note";
 import { browserHistory } from "./history";
+import { resolveNoteImageSrc } from "./image";
 
 export function printPreview(
   previewElement: HTMLElement,
   bannerElement?: HTMLElement,
   timeout = 2000,
 ) {
-  return VickyMDPrintPreview(
+  return EchoMDPrintPreview(
     previewElement,
     bannerElement,
     ["body"],
     `
-  #notes-panel,
+  .App,
   .editor-bottom-panel,
   .drawer,
   .CodeMirror,
   .editor-textarea,
   .editor-toolbar,
   .Pane.vertical.Pane1,
+  .notes-panel,
   .control-panel-wrapper {
     display: none;
   }
@@ -43,21 +43,23 @@ export function openURL(url: string = "", note: Note) {
     }
   } else if (url.startsWith("/")) {
     let filePath = path.relative(
-      note.notebook.dir,
-      path.resolve(note.notebook.dir, url.replace(/^\//, "")),
+      note.notebookPath,
+      path.resolve(note.notebookPath, url.replace(/^\//, "")),
     );
     globalContainers.crossnoteContainer.openNoteAtPath(
+      globalContainers.crossnoteContainer.getNotebookAtPath(note.notebookPath),
       decodeURIComponent(filePath),
     );
   } else {
     let filePath = path.relative(
-      note.notebook.dir,
+      note.notebookPath,
       path.resolve(
-        path.dirname(path.resolve(note.notebook.dir, note.filePath)),
+        path.dirname(path.resolve(note.notebookPath, note.filePath)),
         url,
       ),
     );
     globalContainers.crossnoteContainer.openNoteAtPath(
+      globalContainers.crossnoteContainer.getNotebookAtPath(note.notebookPath),
       decodeURIComponent(filePath),
     );
   }
@@ -81,10 +83,12 @@ export function postprocessPreview(
         if (link.hasAttribute("data-topic")) {
           const tag = link.getAttribute("data-topic");
           if (tag.length) {
-            globalContainers.crossnoteContainer.setSelectedSection({
-              type: SelectedSectionType.Tag,
-              path: tag,
-            });
+            globalContainers.crossnoteContainer.openNoteAtPath(
+              globalContainers.crossnoteContainer.getNotebookAtPath(
+                note.notebookPath,
+              ),
+              tag,
+            );
           }
         } else {
           openURL(link.getAttribute("href"), note);

@@ -1,6 +1,7 @@
 import { PeerJSOption } from "peerjs";
+import moment from "moment";
 
-export function waitForTimeout(timeout: number) {
+export function waitForTimeout(timeout: number): Promise<void> {
   return new Promise((resolve, reject) => {
     return setTimeout(() => {
       return resolve();
@@ -188,4 +189,17 @@ export const randomColorGenerator = new RandomColorGenerator();
 
 export function randomID() {
   return Math.random().toString(36).substr(2, 9);
+}
+
+export function getTodayName() {
+  let today = moment().format("YYYY-MM-DD");
+  const momentFormat = localStorage.getItem("settings/moment-format");
+  if (momentFormat) {
+    try {
+      today = moment().format(momentFormat);
+    } catch (error) {
+      today = moment().format("YYYY-MM-DD");
+    }
+  }
+  return today;
 }

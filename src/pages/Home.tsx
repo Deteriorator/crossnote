@@ -1,64 +1,49 @@
 import {
+  Avatar,
+  Badge,
   Box,
+  CircularProgress,
   CssBaseline,
+  Divider,
   Drawer,
+  Fab,
   Hidden,
+  IconButton,
   List,
   ListItem,
-  IconButton,
-  Divider,
   ListItemIcon,
-  ListItemText,
-  Avatar,
-  CircularProgress,
-  Badge,
-  useMediaQuery,
   ListItemSecondaryAction,
+  ListItemText,
   Tooltip,
-  Card,
 } from "@material-ui/core";
 import {
-  fade,
   createStyles,
+  fade,
   makeStyles,
   Theme,
   useTheme,
-  lighten,
 } from "@material-ui/core/styles";
 import clsx from "clsx";
-import React, { useState, useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import Identicon from "identicon.js";
 import { sha256 } from "js-sha256";
 import {
-  PlusCircleOutline,
-  Cog as SettingsIcon,
   Bell,
+  Cog as SettingsIcon,
+  Menu,
   Notebook,
+  PlusCircleOutline,
 } from "mdi-material-ui";
-import SplitPane from "react-split-pane";
-import {
-  CrossnoteContainer,
-  SelectedSectionType,
-  HomeSection,
-} from "../containers/crossnote";
-import Editor from "../components/Editor";
+import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import AddNotebookDialog from "../components/AddNotebookDialog";
+import { AuthDialog } from "../components/AuthDialog";
+import LanguageSelectorDialog from "../components/LanguageSelectorDialog";
+import { MainPanel } from "../components/MainPanel";
 import NotebookTreeView from "../components/NotebookTreeView";
-import NotesPanel from "../components/NotesPanel";
-import WikiPanel from "../components/WikiPanel";
-import { browserHistory } from "../utilities/history";
-import { Settings } from "../components/Settings";
 import { CloudContainer } from "../containers/cloud";
+import { CrossnoteContainer, HomeSection } from "../containers/crossnote";
 import { globalContainers } from "../containers/global";
 import { SettingsContainer } from "../containers/settings";
-import { AuthDialog } from "../components/AuthDialog";
-import { Notifications } from "../components/Notifications";
-import ExplorePanel from "../components/ExplorePanel";
-import { NotebookPanel } from "../components/NotebookPanel";
-import { PrivacyPolicy } from "./Privacy";
-import AttachmentsPanel from "../components/AttachmentsPanel";
-import LanguageSelectorDialog from "../components/LanguageSelectorDialog";
 const is = require("is_js");
 
 const drawerWidth = 200;
@@ -127,7 +112,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawerPaper: {
       width: drawerWidth,
-      backgroundColor: lighten(theme.palette.background.paper, 0.05),
+      backgroundColor: theme.palette.background.default,
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
@@ -163,14 +148,6 @@ const useStyles = makeStyles((theme: Theme) =>
       }
       */
     },
-    mainPanel: {
-      position: "relative",
-      display: "flex",
-      flexDirection: "row",
-      flexGrow: 1,
-      overflow: "auto",
-      backgroundColor: theme.palette.background.default,
-    },
     notesPanel: {
       maxWidth: "100%",
       height: "100%",
@@ -199,6 +176,12 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     toolBarSpace: theme.mixins.toolbar,
+    fab: {
+      position: "fixed",
+      bottom: theme.spacing(2),
+      right: theme.spacing(2),
+      zIndex: 999,
+    },
   }),
 );
 
@@ -217,7 +200,7 @@ interface Props {
 export function Home(props: Props) {
   const classes = useStyles(props);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+  // const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
   const [addNotebookDialogOpen, setAddNotebookDialogOpen] = useState<boolean>(
     false,
   );
@@ -245,24 +228,7 @@ export function Home(props: Props) {
     }
     if (props.section === HomeSection.Notebooks) {
       if (props.queryParams) {
-        const notebookID = props.queryParams["notebookID"];
-        if (notebookID) {
-          const filePath = decodeURIComponent(props.queryParams.filePath || "");
-          const notebook = crossnoteContainer.notebooks.find(
-            (nb) => nb._id === notebookID,
-          );
-          if (notebook && crossnoteContainer.selectedNotebook !== notebook) {
-            crossnoteContainer.setSelectedNotebook(notebook);
-          }
-          if (filePath) {
-            crossnoteContainer.setPendingNote({
-              notebookID: notebookID,
-              filePath,
-            });
-          } else {
-            crossnoteContainer.setPendingNote(null);
-          }
-        } else if (props.queryParams.repo && props.queryParams.branch) {
+        if (props.queryParams.repo && props.queryParams.branch) {
           const repo = decodeURIComponent(props.queryParams.repo || "");
           const branch = decodeURIComponent(props.queryParams.branch || "");
           const filePath = decodeURIComponent(props.queryParams.filePath || "");
@@ -270,18 +236,51 @@ export function Home(props: Props) {
             (nb) => nb.gitURL === repo && nb.gitBranch === branch,
           );
           if (notebook) {
-            if (crossnoteContainer.selectedNotebook !== notebook) {
-              crossnoteContainer.setSelectedNotebook(notebook);
-            }
-            if (filePath) {
-              crossnoteContainer.setPendingNote({
-                repo,
-                branch,
-                filePath,
+            notebook
+              .refreshNotesIfNotLoaded({
+                dir: "./",
+                includeSubdirectories: true,
+              })
+              .then((notes) => {
+                if (filePath) {
+                  const note = notes[filePath];
+                  if (note) {
+                    crossnoteContainer.addTabNode({
+                      type: "tab",
+                      component: "Note",
+                      config: {
+                        singleton: false,
+                        note,
+                        notebook: notebook,
+                      },
+                      name: `📝 ` + note.title,
+                    });
+                  } else {
+                    //note not found
+                    crossnoteContainer.addTabNode({
+                      type: "tab",
+                      component: "Notes",
+                      id: "Notes: " + notebook.dir,
+                      name: "📔 " + notebook.name,
+                      config: {
+                        singleton: true,
+                        notebook: notebook,
+                      },
+                    });
+                  }
+                } else {
+                  crossnoteContainer.addTabNode({
+                    type: "tab",
+                    component: "Notes",
+                    id: "Notes: " + notebook.dir,
+                    name: "📔 " + notebook.name,
+                    config: {
+                      singleton: true,
+                      notebook: notebook,
+                    },
+                  });
+                }
               });
-            } else {
-              crossnoteContainer.setPendingNote(null);
-            }
           } else {
             // Show dialog
             setAddNotebookRepo(repo);
@@ -333,7 +332,10 @@ export function Home(props: Props) {
                 style={{ padding: "0" }}
                 key={notebook._id}
               >
-                <NotebookTreeView notebook={notebook}></NotebookTreeView>
+                <NotebookTreeView
+                  notebook={notebook}
+                  onCloseDrawer={() => setDrawerOpen(false)}
+                ></NotebookTreeView>
               </ListItem>
             );
           })}
@@ -348,6 +350,7 @@ export function Home(props: Props) {
       <Box className={clsx(classes.controllersSection)}>
         <Divider></Divider>
         <List disablePadding={true}>
+          {/*
           <ListItem
             button
             onClick={() => {
@@ -365,10 +368,19 @@ export function Home(props: Props) {
             </ListItemIcon>
             <ListItemText primary={t("general/Explore")}></ListItemText>
           </ListItem>
+          */}
           <ListItem
             button
             onClick={() => {
-              browserHistory.push(`/settings`);
+              crossnoteContainer.addTabNode({
+                type: "tab",
+                component: "Settings",
+                name: "⚙️ " + t("general/Settings"),
+                id: "Settings",
+                config: {
+                  singleton: true,
+                },
+              });
               setDrawerOpen(false);
             }}
           >
@@ -401,7 +413,15 @@ export function Home(props: Props) {
             <ListItem
               button
               onClick={() => {
-                browserHistory.push(`/notifications`);
+                crossnoteContainer.addTabNode({
+                  type: "tab",
+                  component: "Notifications",
+                  name: "🔔 " + t("general/Notifications"),
+                  id: "Notifications",
+                  config: {
+                    singleton: true,
+                  },
+                });
                 setDrawerOpen(false);
               }}
             >
@@ -425,51 +445,6 @@ export function Home(props: Props) {
         </List>
       </Box>
     </React.Fragment>
-  );
-
-  const notesPanel =
-    props.section === HomeSection.Notebooks &&
-    (crossnoteContainer.selectedSection.type === SelectedSectionType.Wiki ? (
-      <Box className={clsx(classes.notesPanel)} id={"notes-panel"}>
-        <WikiPanel toggleDrawer={toggleDrawer}></WikiPanel>
-      </Box>
-    ) : crossnoteContainer.selectedSection.type ===
-      SelectedSectionType.Attachments ? (
-      <Box className={clsx(classes.notesPanel)} id={"notes-panel"}>
-        <AttachmentsPanel toggleDrawer={toggleDrawer}></AttachmentsPanel>
-      </Box>
-    ) : (
-      <Box className={clsx(classes.notesPanel)} id={"notes-panel"}>
-        <NotesPanel toggleDrawer={toggleDrawer}></NotesPanel>
-      </Box>
-    ));
-
-  const editorPanel = props.section === HomeSection.Notebooks && (
-    <Card
-      className={clsx(classes.editorPanel, "editor-panel")}
-      style={{
-        display: crossnoteContainer.displayMobileEditor && "block",
-      }}
-    >
-      <Editor note={crossnoteContainer.selectedNote}></Editor>
-    </Card>
-  );
-
-  const explorePanel = props.section === HomeSection.Explore && (
-    <Box className={clsx(classes.notesPanel)}>
-      <ExplorePanel toggleDrawer={toggleDrawer}></ExplorePanel>
-    </Box>
-  );
-
-  const notebookPanel = props.section === HomeSection.Explore && (
-    <Card
-      className={clsx(classes.editorPanel)}
-      style={{
-        display: cloudContainer.displayNotebookPreview && "block",
-      }}
-    >
-      <NotebookPanel notebook={cloudContainer.selectedNotebook}></NotebookPanel>
-    </Card>
   );
 
   return (
@@ -503,52 +478,18 @@ export function Home(props: Props) {
             {drawer}
           </Drawer>
         </Hidden>
+        <Hidden smUp implementation="css">
+          <Fab
+            color="primary"
+            size="small"
+            onClick={toggleDrawer}
+            className={clsx(classes.fab)}
+          >
+            <Menu></Menu>
+          </Fab>
+        </Hidden>
       </nav>
-      <Box className={clsx(classes.mainPanel)} id="main-panel">
-        {props.section === HomeSection.Notebooks &&
-          (isMobile ? (
-            <React.Fragment>
-              {notesPanel}
-              {editorPanel}
-            </React.Fragment>
-          ) : (
-            <SplitPane
-              defaultSize={notesPanelWidth}
-              minSize={notesPanelMinWidth}
-              maxSize={notesPanelMaxWidth}
-              className={"main-panel-split-pane"}
-            >
-              {notesPanel}
-              {editorPanel}
-            </SplitPane>
-          ))}
-        {props.section === HomeSection.Explore &&
-          (isMobile ? (
-            <React.Fragment>
-              {explorePanel}
-              {notebookPanel}
-            </React.Fragment>
-          ) : (
-            <SplitPane
-              defaultSize={notesPanelWidth}
-              minSize={notesPanelMinWidth}
-              maxSize={notesPanelMaxWidth}
-              className={"main-panel-split-pane"}
-            >
-              {explorePanel}
-              {notebookPanel}
-            </SplitPane>
-          ))}
-        {props.section === HomeSection.Settings && (
-          <Settings toggleDrawer={toggleDrawer}></Settings>
-        )}
-        {props.section === HomeSection.Notifications && (
-          <Notifications toggleDrawer={toggleDrawer}></Notifications>
-        )}
-        {props.section === HomeSection.Privacy && (
-          <PrivacyPolicy toggleDrawer={toggleDrawer}></PrivacyPolicy>
-        )}
-      </Box>
+      <MainPanel toggleDrawer={toggleDrawer}></MainPanel>
       <AddNotebookDialog
         open={addNotebookDialogOpen}
         onClose={() => setAddNotebookDialogOpen(false)}

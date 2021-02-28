@@ -48,9 +48,12 @@ export const jaJP = {
     "general/confirm-password": "もう一度パスワードを確認してください",
     "general/Continue": "継続する",
     "general/enter-username": "ユーザー名を入力してください",
-    "general/vickymd": "VickyMD(微記)",
+    "general/echomd": "編集",
     "general/tags": "タグ",
     "general/add-a-tag": "タグを追加する",
+    "general/edit-note-alias": "ノート エイリアスの編集",
+    "general/no-aliases": "エイリアスなし",
+    "general/add-an-alias": "エイリアスを追加する",
     "general/private": "民間",
     "general/public": "公開可見",
     "general/friends-only": "友達にのみ表示",
@@ -139,7 +142,8 @@ export const jaJP = {
     "general/configure-the-notebook": "ノートブックを構成する",
     "general/publish-your-notebook": "ノートブックを発行する",
     "general/notebook-name": "ノートブック名",
-    "general/git-repository": "git リポジトリ",
+    "general/git-repository": "Git リポジトリ",
+    "general/clone-a-git-repository": "Git リポジトリのクローン作成",
     "general/optional": "オプション",
     "general/url": "Url",
     "general/branch": "ブランチ",
@@ -149,6 +153,7 @@ export const jaJP = {
     "general/why-cors-proxy": "なぜ CORS プロキシが必要なのですか?",
     "general/today": "今日",
     "general/todo": "Todo",
+    "general/graph-view": "グラフビュー",
     "general/wiki": "Wiki",
     "general/tagged": "タグ",
     "general/untagged": "タグない",
@@ -194,6 +199,15 @@ export const jaJP = {
     "general/Emacs": "Emacs",
     "general/Desc": "降順",
     "general/Asc": "昇順",
+    "general/pin-the-note": "ノートをピン留めする",
+    "general/unpin-the-note": "ノートの固定を解除する",
+    "general/add-to-quick-access": "クイック アクセスに追加",
+    "general/remove-from-quick-access": "クイック アクセスから削除",
+    "general/open-folder": "フォルダを開く",
+    "general/open-a-local-folder": "ローカル フォルダを開く",
+    "general/your-browser-doesnt-support-to-open-local-folder":
+      "ブラウザがローカル フォルダを開くことをサポートしていません",
+    "general/refresh": "更新",
 
     // Error
     "error/authentication-failed": "認証に失敗しました",
@@ -286,9 +300,6 @@ export const jaJP = {
     "profile-card/unfollow-user-failure":
       "このユーザーのフォローを解除できません",
     "profile-card/unfollowed-user": "このユーザーのフォローを解除しました",
-
-    // TagCard
-    "tag-card/pin-to-my-notes-page": "ノートページにピン留めする",
 
     // Interaction panel
     "interaction-panel/show-attached-notes": "添付されたノートを表示",

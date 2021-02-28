@@ -1,18 +1,18 @@
-import React, { useEffect, FC } from "react";
-import "./App.css";
 import { ThemeProvider } from "@material-ui/styles";
 import * as qs from "qs";
-import { Router, Route, Switch } from "react-router-dom";
-import { browserHistory } from "./utilities/history";
-import { Home } from "./pages/Home";
-import { GitHubOAuthCallback } from "./components/GitHubOAuthCallback";
-import "./editor";
-import { HomeSection } from "./containers/crossnote";
-import { SettingsContainer } from "./containers/settings";
-import ServiceWorkerWrapper from "./components/ServiceWorkerWrapper";
+import React, { FC, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 // @ts-ignore
 import PWAPrompt from "react-ios-pwa-prompt";
-import { useTranslation } from "react-i18next";
+import { Route, Router, Switch } from "react-router-dom";
+import "./App.css";
+import { GitHubOAuthCallback } from "./components/GitHubOAuthCallback";
+import ServiceWorkerWrapper from "./components/ServiceWorkerWrapper";
+import { HomeSection } from "./containers/crossnote";
+import { SettingsContainer } from "./containers/settings";
+import "./editor";
+import { Home } from "./pages/Home";
+import { browserHistory } from "./utilities/history";
 const is = require("is_js");
 
 const App: FC = () => {
@@ -27,7 +27,7 @@ const App: FC = () => {
           console.log(choiceResult);
         });
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
     window.addEventListener("beforeinstallprompt", handler);
@@ -40,6 +40,7 @@ const App: FC = () => {
       <div className="App">
         <Router history={browserHistory}>
           <Switch>
+            {/*
             <Route
               path={`/settings`}
               exact={true}
@@ -65,23 +66,24 @@ const App: FC = () => {
               )}
             ></Route>
             <Route
+              path={`/privacy`}
+              exact={true}
+              render={(props) => (
+                <Home section={HomeSection.Privacy} queryParams={{}}></Home>
+              )}
+            ></Route>
+              */}
+            <Route
               exact={true}
               path={`/github_oauth_callback`}
               render={(props) => (
                 <GitHubOAuthCallback
                   code={
-                    qs.parse(props.location.search.replace(/^\?/, ""))[
+                    (qs.parse(props.location.search.replace(/^\?/, ""))[
                       "code"
-                    ] || ""
+                    ] as string) || ""
                   }
                 ></GitHubOAuthCallback>
-              )}
-            ></Route>
-            <Route
-              path={`/privacy`}
-              exact={true}
-              render={(props) => (
-                <Home section={HomeSection.Privacy} queryParams={{}}></Home>
               )}
             ></Route>
             <Route

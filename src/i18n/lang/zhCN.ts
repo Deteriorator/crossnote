@@ -48,9 +48,12 @@ export const zhCN = {
     "general/confirm-password": "再次确认密码",
     "general/Continue": "下一步",
     "general/enter-username": "输入用户名",
-    "general/vickymd": "VickyMD(微记)",
+    "general/echomd": "编辑",
     "general/tags": "标签",
     "general/add-a-tag": "添加一个标签",
+    "general/edit-note-alias": "编辑笔记别名",
+    "general/no-aliases": "没有别名",
+    "general/add-an-alias": "添加一个别名",
     "general/private": "私有",
     "general/public": "公开可见",
     "general/friends-only": "仅好友可见",
@@ -140,6 +143,7 @@ export const zhCN = {
     "general/publish-your-notebook": "发布你的笔记本",
     "general/notebook-name": "笔记本名称",
     "general/git-repository": "git 仓库",
+    "general/clone-a-git-repository": "克隆一个 Git 仓库",
     "general/optional": "可选",
     "general/url": "Url",
     "general/branch": "分支",
@@ -149,6 +153,7 @@ export const zhCN = {
     "general/why-cors-proxy": "为什么需要 CORS 代理？",
     "general/today": "今天",
     "general/todo": "待办事项",
+    "general/graph-view": "图形视图",
     "general/wiki": "维基",
     "general/tagged": "标签",
     "general/untagged": "未标签",
@@ -191,6 +196,15 @@ export const zhCN = {
     "general/Emacs": "Emacs",
     "general/Desc": "降序",
     "general/Asc": "升序",
+    "general/pin-the-note": "置顶这个笔记",
+    "general/unpin-the-note": "取消置顶这个笔记",
+    "general/add-to-quick-access": "添加到快速访问",
+    "general/remove-from-quick-access": "从快速访问中移除",
+    "general/open-folder": "打开文件夹",
+    "general/open-a-local-folder": "打开一个本地文件夹",
+    "general/your-browser-doesnt-support-to-open-local-folder":
+      "你的浏览器不支持打开本地文件夹",
+    "general/refresh": "刷新",
 
     // Error
     "error/authentication-failed": "认证失败",
@@ -275,9 +289,6 @@ export const zhCN = {
     "profile-card/followed-user": "关注了这个用户",
     "profile-card/unfollow-user-failure": "无法取消关注这个用户",
     "profile-card/unfollowed-user": "取消关注了这个用户",
-
-    // TagCard
-    "tag-card/pin-to-my-notes-page": "置顶到我的笔记页",
 
     // Interaction panel
     "interaction-panel/show-attached-notes": "显示附加的笔记",

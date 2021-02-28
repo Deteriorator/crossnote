@@ -48,9 +48,12 @@ export const enUS = {
     "general/confirm-password": "Confirm password",
     "general/Continue": "Continue",
     "general/enter-username": "Enter username",
-    "general/vickymd": "VickyMD",
+    "general/echomd": "Edit",
     "general/tags": "Tags",
     "general/add-a-tag": "Add a tag",
+    "general/edit-note-alias": "Edit note alias",
+    "general/no-aliases": "No aliases",
+    "general/add-an-alias": "Add an alias",
     "general/private": "Private",
     "general/public": "Public",
     "general/friends-only": "Friends only",
@@ -139,7 +142,8 @@ export const enUS = {
     "general/configure-the-notebook": "Configure the notebook",
     "general/publish-your-notebook": "Publish your notebook",
     "general/notebook-name": "Notebook name",
-    "general/git-repository": "git repository",
+    "general/git-repository": "Git repository",
+    "general/clone-a-git-repository": "Clone a Git repository",
     "general/optional": "optional",
     "general/url": "Url",
     "general/branch": "branch",
@@ -149,6 +153,7 @@ export const enUS = {
     "general/why-cors-proxy": "Why do we need CORS proxy？",
     "general/today": "Today",
     "general/todo": "Todo",
+    "general/graph-view": "Graph view",
     "general/wiki": "Wiki",
     "general/tagged": "Tagged",
     "general/untagged": "Untagged",
@@ -194,6 +199,15 @@ export const enUS = {
     "general/Emacs": "Emacs",
     "general/Desc": "Desc",
     "general/Asc": "Asc",
+    "general/pin-the-note": "Pin the note",
+    "general/unpin-the-note": "Unpin the note",
+    "general/add-to-quick-access": "Add to quick access",
+    "general/remove-from-quick-access": "Remove from quick access",
+    "general/open-folder": "Open Folder",
+    "general/open-a-local-folder": "Open a Local Folder",
+    "general/your-browser-doesnt-support-to-open-local-folder":
+      "Your browser doesn't support to open local folder",
+    "general/refresh": "Refresh",
 
     // Error
     "error/authentication-failed": "Authentication failed",
@@ -281,9 +295,6 @@ export const enUS = {
     "profile-card/followed-user": "Followed user",
     "profile-card/unfollow-user-failure": "Failed to unfollow user",
     "profile-card/unfollowed-user": "Unfollowed user",
-
-    // TagCard
-    "tag-card/pin-to-my-notes-page": "Pin to my notes page",
 
     // Interaction panel
     "interaction-panel/show-attached-notes": "Show attached notes",

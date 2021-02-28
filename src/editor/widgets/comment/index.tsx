@@ -1,42 +1,43 @@
-import { WidgetCreator, WidgetArgs } from "vickymd/widget";
-import React, { useState, useEffect, useCallback } from "react";
-import ReactDOM from "react-dom";
+import { WidgetArgs, WidgetCreator } from "@0xgg/echomd/widget";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import {
   createStyles,
+  darken,
   makeStyles,
   Theme,
   ThemeProvider,
-  darken,
 } from "@material-ui/core/styles";
 import clsx from "clsx";
-import {
-  useCreateCommentWidgetMutation,
-  useCommentWidgetQuery,
-  CommentWidgetFieldsFragment,
-  useAddReactionToCommentWidgetMutation,
-  useRemoveReactionFromCommentWidgetMutation,
-} from "../../../generated/graphql";
-import Noty from "noty";
-import { useTranslation } from "react-i18next";
-import { getHeaderFromMarkdown } from "../../../utilities/note";
-import { Provider } from "urql";
-import { GraphQLClient } from "../../../utilities/client";
-import {
-  Button,
-  Box,
-  Typography,
-  Avatar,
-  Tooltip,
-  Badge,
-  Dialog,
-  Chip,
-} from "@material-ui/core";
-import { CommentOutline, StickerEmoji } from "mdi-material-ui";
 import { Emoji, Picker as EmojiPicker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
+import { CommentOutline, StickerEmoji } from "mdi-material-ui";
+import Noty from "noty";
+import React, { useCallback, useEffect, useState } from "react";
+import ReactDOM from "react-dom";
+import { useTranslation } from "react-i18next";
+import { Provider } from "urql";
 import { globalContainers } from "../../../containers/global";
-import { CommentDialog } from "./CommentDialog";
+import {
+  CommentWidgetFieldsFragment,
+  useAddReactionToCommentWidgetMutation,
+  useCommentWidgetQuery,
+  useCreateCommentWidgetMutation,
+  useRemoveReactionFromCommentWidgetMutation,
+} from "../../../generated/graphql";
+import { Note } from "../../../lib/note";
+import { GraphQLClient } from "../../../utilities/client";
+import { getHeaderFromMarkdown } from "../../../utilities/note";
 import { WidgetTopPanel } from "../widget/WidgetTopPanel";
+import { CommentDialog } from "./CommentDialog";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -198,7 +199,25 @@ function CommentWidget(props: WidgetArgs) {
     ) {
       const title =
         getHeaderFromMarkdown(editor.getValue()) || t("general/Untitled");
-      const source = window.location.href;
+      const note = (editor.getOption as any)("note") as Note;
+      let source = window.location.href;
+      if (note) {
+        const notebook = globalContainers.crossnoteContainer.getNotebookAtPath(
+          note.notebookPath,
+        );
+        if (notebook) {
+          // TODO: Refactor with NotePopover.tsx
+          source = notebook.gitURL
+            ? `${window.location.origin}/?repo=${encodeURIComponent(
+                notebook.gitURL,
+              )}&branch=${encodeURIComponent(
+                notebook.gitBranch || "master",
+              )}&filePath=${encodeURIComponent(note.filePath)}`
+            : `${window.location.origin}/?notebookID=${
+                notebook._id
+              }&filePath=${encodeURIComponent(note.filePath)}`;
+        }
+      }
       const description = `💬  **${title}**`;
       executeCreateCommentWidgetMutation({
         description,

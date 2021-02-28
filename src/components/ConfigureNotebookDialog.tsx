@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useCallback } from "react";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
-  Typography,
-  DialogActions,
   Button,
-  Link,
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Input,
   InputAdornment,
+  Link,
+  TextField,
+  Typography,
 } from "@material-ui/core";
 import { ChevronDown } from "mdi-material-ui";
-import { CrossnoteContainer } from "../containers/crossnote";
-import { Notebook } from "../lib/crossnote";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CrossnoteContainer } from "../containers/crossnote";
+import { Notebook } from "../lib/notebook";
 
 interface Props {
   open: boolean;
@@ -45,7 +45,15 @@ export default function ConfigureNotebookDialog(props: Props) {
   const [clickHardResetCount, setClickHardResetCount] = useState<number>(
     MaxClickDeleteCount,
   );
+  const isMounted = useRef<boolean>(false);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     setClickDeleteCount(MaxClickDeleteCount);
@@ -82,7 +90,9 @@ export default function ConfigureNotebookDialog(props: Props) {
     try {
       await crossnoteContainer.updateNotebook(notebook);
     } catch (error) {}
-    props.onClose();
+    if (isMounted.current) {
+      props.onClose();
+    }
   }, [
     props,
     props.notebook,
@@ -100,16 +110,20 @@ export default function ConfigureNotebookDialog(props: Props) {
     try {
       await crossnoteContainer.deleteNotebook(notebook);
     } catch (error) {}
-    props.onClose();
-  }, [props.notebook]);
+    if (isMounted.current) {
+      props.onClose();
+    }
+  }, [props.notebook, props]);
 
   const hardResetNotebook = useCallback(async () => {
     const notebook = props.notebook;
     try {
       await crossnoteContainer.hardResetNotebook(notebook);
     } catch (error) {}
-    props.onClose();
-  }, [props.notebook]);
+    if (isMounted.current) {
+      props.onClose();
+    }
+  }, [props.notebook, props]);
 
   useEffect(() => {
     setClickDeleteCount(MaxClickDeleteCount);
@@ -133,94 +147,96 @@ export default function ConfigureNotebookDialog(props: Props) {
           autoComplete={"off"}
           autoCorrect={"off"}
         ></TextField>
-        <ExpansionPanel
-          elevation={2}
-          expanded={expanded}
-          onChange={() => setExpanded(!expanded)}
-        >
-          <ExpansionPanelSummary expandIcon={<ChevronDown></ChevronDown>}>
-            <Typography>{`${t("general/git-repository")} (${t(
-              "general/optional",
-            )})`}</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Box>
-              <TextField
-                label={t("general/url")}
-                placeholder={"https://abc/def.git"}
-                disabled={true}
-                fullWidth={true}
-                value={gitURL}
-                onChange={(event) => setGitURL(event.target.value)}
-              ></TextField>
-              <TextField
-                label={t("general/branch")}
-                placeholder={"master"}
-                disabled={true}
-                fullWidth={true}
-                value={gitBranch}
-                onChange={(event) => setGitBranch(event.target.value)}
-              ></TextField>
-              <TextField
-                label={`${t("general/Username")} (${t("general/optional")})`}
-                placeholder={`${t("general/Username")} (${t(
-                  "general/optional",
-                )})`}
-                fullWidth={true}
-                value={gitUsername}
-                onChange={(event) => setGitUsername(event.target.value)}
-              ></TextField>
-              <TextField
-                label={`${t("general/Password")} (${t("general/optional")})`}
-                placeholder={`${t("general/Password")} (${t(
-                  "general/optional",
-                )})`}
-                type={"password"}
-                fullWidth={true}
-                value={gitPassword}
-                onChange={(event) => setGitPassword(event.target.value)}
-              ></TextField>
-              <TextField
-                label={t("general/cors-proxy")}
-                placeholder={"https://crossnote.app/cors/"}
-                fullWidth={true}
-                value={gitCorsProxy}
-                onChange={(event) => setGitCorsProxy(event.target.value)}
-              ></TextField>
-              <Link
-                href={
-                  "https://github.com/isomorphic-git/isomorphic-git#cors-support"
-                }
-                target={"_blank"}
-              >
-                {t("general/why-cors-proxy")}
-              </Link>
-              {props.notebook && props.notebook.gitURL ? (
-                <Box style={{ marginTop: "16px" }}>
-                  <Typography>
-                    {t("general/check-notebook-updates-periodically")}
-                  </Typography>
-                  <Input
-                    value={autoFetchPeriod}
-                    onChange={(event) => {
-                      try {
-                        const value = parseFloat(event.target.value || "0");
-                        if (!isNaN(value)) {
-                          setAutoFetchPeriod(value);
-                        }
-                      } catch (error) {}
-                    }}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        {t("general/minutes")}
-                      </InputAdornment>
-                    }
-                  ></Input>
-                </Box>
-              ) : null}
-            </Box>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+        {!props.notebook.isLocal && (
+          <Accordion
+            elevation={2}
+            expanded={expanded}
+            onChange={() => setExpanded(!expanded)}
+          >
+            <AccordionSummary expandIcon={<ChevronDown></ChevronDown>}>
+              <Typography>{`${t("general/git-repository")} (${t(
+                "general/optional",
+              )})`}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box>
+                <TextField
+                  label={t("general/url")}
+                  placeholder={"https://abc/def.git"}
+                  disabled={true}
+                  fullWidth={true}
+                  value={gitURL}
+                  onChange={(event) => setGitURL(event.target.value)}
+                ></TextField>
+                <TextField
+                  label={t("general/branch")}
+                  placeholder={"master"}
+                  disabled={true}
+                  fullWidth={true}
+                  value={gitBranch}
+                  onChange={(event) => setGitBranch(event.target.value)}
+                ></TextField>
+                <TextField
+                  label={`${t("general/Username")} (${t("general/optional")})`}
+                  placeholder={`${t("general/Username")} (${t(
+                    "general/optional",
+                  )})`}
+                  fullWidth={true}
+                  value={gitUsername}
+                  onChange={(event) => setGitUsername(event.target.value)}
+                ></TextField>
+                <TextField
+                  label={`${t("general/Password")} (${t("general/optional")})`}
+                  placeholder={`${t("general/Password")} (${t(
+                    "general/optional",
+                  )})`}
+                  type={"password"}
+                  fullWidth={true}
+                  value={gitPassword}
+                  onChange={(event) => setGitPassword(event.target.value)}
+                ></TextField>
+                <TextField
+                  label={t("general/cors-proxy")}
+                  placeholder={"https://crossnote.app/cors/"}
+                  fullWidth={true}
+                  value={gitCorsProxy}
+                  onChange={(event) => setGitCorsProxy(event.target.value)}
+                ></TextField>
+                <Link
+                  href={
+                    "https://github.com/isomorphic-git/isomorphic-git#cors-support"
+                  }
+                  target={"_blank"}
+                >
+                  {t("general/why-cors-proxy")}
+                </Link>
+                {props.notebook && props.notebook.gitURL ? (
+                  <Box style={{ marginTop: "16px" }}>
+                    <Typography>
+                      {t("general/check-notebook-updates-periodically")}
+                    </Typography>
+                    <Input
+                      value={autoFetchPeriod}
+                      onChange={(event) => {
+                        try {
+                          const value = parseFloat(event.target.value || "0");
+                          if (!isNaN(value)) {
+                            setAutoFetchPeriod(value);
+                          }
+                        } catch (error) {}
+                      }}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          {t("general/minutes")}
+                        </InputAdornment>
+                      }
+                    ></Input>
+                  </Box>
+                ) : null}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        )}
       </DialogContent>
       <DialogActions>
         {crossnoteContainer.notebooks.length > 1 && (
@@ -237,7 +253,9 @@ export default function ConfigureNotebookDialog(props: Props) {
               }
             }}
           >
-            {t("general/Delete") +
+            {(props.notebook.isLocal
+              ? t("general/close")
+              : t("general/Delete")) +
               (clickDeleteCount < MaxClickDeleteCount
                 ? ` ${clickDeleteCount}`
                 : "")}

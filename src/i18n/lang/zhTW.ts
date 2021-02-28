@@ -48,9 +48,12 @@ export const zhTW = {
     "general/confirm-password": "再次確認密碼",
     "general/Continue": "下一步",
     "general/enter-username": "輸入用戶名",
-    "general/vickymd": "VickyMD(微記)",
+    "general/echomd": "編輯",
     "general/tags": "標籤",
     "general/add-a-tag": "添加一個標籤",
+    "general/edit-note-alias": "編輯筆記別名",
+    "general/no-aliases": "沒有別名",
+    "general/add-an-alias": "添加壹個別名",
     "general/private": "私有",
     "general/public": "公開可見",
     "general/friends-only": "僅好友可見",
@@ -140,6 +143,7 @@ export const zhTW = {
     "general/publish-your-notebook": "發佈你的筆記本",
     "general/notebook-name": "筆記本名稱",
     "general/git-repository": "git 倉庫",
+    "general/clone-a-git-repository": "克隆壹個 Git 倉庫",
     "general/optional": "可選",
     "general/url": "Url",
     "general/branch": "分支",
@@ -149,6 +153,7 @@ export const zhTW = {
     "general/why-cors-proxy": "為什麼需要 CORS 代理？",
     "general/today": "今天",
     "general/todo": "待辦事項",
+    "general/graph-view": "圖形視圖",
     "general/wiki": "維琪",
     "general/tagged": "標籤",
     "general/untagged": "未標籤",
@@ -191,6 +196,15 @@ export const zhTW = {
     "general/Emacs": "Emacs",
     "general/Desc": "遞減",
     "general/Asc": "遞增",
+    "general/pin-the-note": "置頂這個筆記",
+    "general/unpin-the-note": "取消置頂這個筆記",
+    "general/add-to-quick-access": "添加到快速訪問",
+    "general/remove-from-quick-access": "從快速訪問中移除",
+    "general/open-folder": "打開文件夾",
+    "general/open-a-local-folder": "打開壹個本地文件夾",
+    "general/your-browser-doesnt-support-to-open-local-folder":
+      "妳的瀏覽器不支持打開本地文件夾",
+    "general/refresh": "刷新",
 
     // Error
     "error/authentication-failed": "認証失敗",
@@ -275,9 +289,6 @@ export const zhTW = {
     "profile-card/followed-user": "關注了這個用戶",
     "profile-card/unfollow-user-failure": "無法取消關注這個用戶",
     "profile-card/unfollowed-user": "取消關注了這個用戶",
-
-    // TagCard
-    "tag-card/pin-to-my-notes-page": "置頂到我的筆記頁",
 
     // Interaction panel
     "interaction-panel/show-attached-notes": "顯示附加的筆記",
