@@ -37,7 +37,7 @@ export default function ConfigureNotebookDialog(props: Props) {
   const [gitUsername, setGitUsername] = useState<string>("");
   const [gitPassword, setGitPassword] = useState<string>("");
   const [gitCorsProxy, setGitCorsProxy] = useState<string>(
-    "https://cors.isomorphic-git.org/",
+    "https://cors.isomorphic-git.org",
   );
   const [showUsername, setShowUsername] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -233,7 +233,7 @@ export default function ConfigureNotebookDialog(props: Props) {
                 ></TextField>
                 <TextField
                   label={t("general/cors-proxy")}
-                  placeholder={"https://cors.isomorphic-git.org/"}
+                  placeholder={"https://cors.isomorphic-git.org"}
                   fullWidth={true}
                   value={gitCorsProxy}
                   onChange={(event) => setGitCorsProxy(event.target.value)}
