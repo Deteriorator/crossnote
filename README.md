@@ -3,6 +3,11 @@ created: 2020-04-12T13:19:52.701Z
 modified: 2020-05-11T11:14:44.140Z
 ---
 
+⚠️ This project is no longer maintained. Its website backend server is down. You can still visit its website frontend.    
+You could also try out the [markdown-preview-enhanced](https://github.com/shd101wyy/vscode-markdown-preview-enhanced) vscode extension which provides similar functionalities.  
+
+---
+
 ![](./public/logo192.png)
 
 # 📝 Crossnote 交叉笔记

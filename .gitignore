@@ -92,3 +92,5 @@ _git_commit.js
 public/styles
 package-lock.json
 public/assets/emoji
+
+.direnv

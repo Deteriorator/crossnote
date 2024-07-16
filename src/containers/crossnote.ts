@@ -17,7 +17,7 @@ import Crossnote, {
 } from "../lib/crossnote";
 import { EventType, globalEmitter } from "../lib/event";
 import { pfs } from "../lib/fs";
-import { getNoteIcon, Note, NoteConfig } from "../lib/note";
+import { Note, NoteConfig, getNoteIcon } from "../lib/note";
 import { Notebook } from "../lib/notebook";
 import { CrossnoteTabNode, TabHeight } from "../lib/tabNode";
 import { getTodayName } from "../utilities/utils";
@@ -837,13 +837,13 @@ function useCrossnoteContainer(initialState: InitialState) {
       } else {
         /*
         notebook = await crossnote.cloneNotebook({
-          corsProxy: "https://crossnote.app/cors/",
+          corsProxy: "https://cors.isomorphic-git.org/",
           gitURL: "https://github.com/0xGG/crossnote-doc.git"
         });
         */
         notebook = await crossnote.addNotebook({
           name: "Drafts",
-          corsProxy: "https://crossnote.app/cors/",
+          corsProxy: "https://cors.isomorphic-git.org/",
           gitURL: "",
         });
         await pfs.writeFile(

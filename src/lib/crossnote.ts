@@ -278,7 +278,9 @@ export default class Crossnote {
 
     // Save to DB
     try {
-      await this.notebookDB.put(convertNotebookToNotebookDBEntry(notebook, null));
+      await this.notebookDB.put(
+        convertNotebookToNotebookDBEntry(notebook, null),
+      );
     } catch (error) {
       // Failed to save to DB
       await pfs.rmdir(dir);
@@ -787,6 +789,13 @@ export default class Crossnote {
       notebook.fetchedAt = n.fetchedAt;
       notebook.remoteSha = n.remoteSha;
       notebook.localSha = n.localSha;
+
+      if (
+        typeof notebook.gitCorsProxy === "string" &&
+        notebook.gitCorsProxy.startsWith("https://crossnote.app/cors")
+      ) {
+        notebook.gitCorsProxy = "https://cors.isomorphic-git.org/";
+      }
 
       if (n.directoryHandle) {
         // local notebook

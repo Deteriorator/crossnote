@@ -20,7 +20,7 @@ import {
 import { useTheme } from "@material-ui/core/styles";
 import { ChevronDown, Eye, EyeOff, FolderOpen } from "mdi-material-ui";
 import Noty from "noty";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CrossnoteContainer } from "../containers/crossnote";
 
@@ -43,7 +43,7 @@ export default function AddNotebookDialog(props: Props) {
   const [gitUsername, setGitUsername] = useState<string>("");
   const [gitPassword, setGitPassword] = useState<string>("");
   const [gitCorsProxy, setGitCorsProxy] = useState<string>(
-    "https://crossnote.app/cors/",
+    "https://cors.isomorphic-git.org/",
   );
   const [
     rememberCredentialsChecked,
@@ -202,7 +202,7 @@ export default function AddNotebookDialog(props: Props) {
             <Box>
               <TextField
                 label={t("general/url")}
-                placeholder={"https://github.com/0xGG/crossnote.git"}
+                placeholder={"https://github.com/0xGG/crossnote-app.git"}
                 fullWidth={true}
                 value={gitURL}
                 onChange={(event) => setGitURL(event.target.value)}
@@ -282,7 +282,7 @@ export default function AddNotebookDialog(props: Props) {
               />
               <TextField
                 label={t("general/cors-proxy")}
-                placeholder={"https://crossnote.app/cors/"}
+                placeholder={"https://cors.isomorphic-git.org/"}
                 fullWidth={true}
                 value={gitCorsProxy}
                 onChange={(event) => setGitCorsProxy(event.target.value)}
